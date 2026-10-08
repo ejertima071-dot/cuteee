@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f7dce7">
+    <title>Princess Diane | The Photobook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: light;
+            --rose: #ad1457;
+            --rose-dark: #79113f;
+            --pink: #ef9dbb;
+            --paper: #fffaf6;
+            --ink: #542c3c;
+            --pw: min(36vw, 50dvh, 390px);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        body {
+            position: relative;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            gap: 10px;
+            padding:
+                max(14px, env(safe-area-inset-top))
+                max(16px, env(safe-area-inset-right))
+                max(12px, env(safe-area-inset-bottom))
+                max(16px, env(safe-area-inset-left));
+            color: var(--ink);
+            font-family: "Playfair Display", Georgia, serif;
+            background:
+                radial-gradient(ellipse at 50% 44%, rgba(255, 255, 255, 0.9), transparent 44%),
+                radial-gradient(ellipse at 15% 15%, #ffeef4, transparent 42%),
+                radial-gradient(ellipse at 85% 80%, #f3c1d3, transparent 48%),
+                #f7dce7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button,
+        a {
+            font: inherit;
+        }
+
+        button:focus-visible,
+        a:focus-visible {
+            outline: 3px solid #cf4f82;
+            outline-offset: 4px;
+        }
+
+        .petal-field {
+            position: fixed;
+            z-index: 0;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            perspective: 800px;
+        }
+
+        .petal {
+            position: absolute;
+            left: var(--x);
+            top: var(--y);
+            opacity: var(--opacity);
+            font-size: var(--size);
+            filter: drop-shadow(0 5px 8px rgba(173, 20, 87, 0.12));
+            transform: translate3d(var(--shift-x, 0), var(--shift-y, 0), var(--depth));
+            transition: transform 0.45s ease-out;
+            animation: petalFloat var(--duration) ease-in-out var(--delay) infinite alternate;
+        }
+
+        @keyframes petalFloat {
+            from { translate: 0 -4px; rotate: -9deg; }
+            to { translate: 5px 10px; rotate: 12deg; }
+        }
+
+        .topbar,
+        .controls,
+        .book-stage {
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 36px;
+            gap: 16px;
+        }
+
+        .back-link {
+            color: var(--rose);
+            font-size: 0.82rem;
+            text-decoration: none;
+        }
+
+        .top-note {
+            color: rgba(121, 17, 63, 0.76);
+            font-size: 0.78rem;
+            letter-spacing: 0.07em;
+            text-align: right;
+            text-transform: uppercase;
+        }
+
+        .book-stage {
+            display: grid;
+            min-height: 0;
+            place-items: center;
+            perspective: 1800px;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .book {
+            position: relative;
+            width: calc(var(--pw) * 2);
+            height: calc(var(--pw) * 4 / 3);
+            transform: translateX(-25%);
+            transform-style: preserve-3d;
+            transition: transform 850ms cubic-bezier(0.2, 0.72, 0.24, 1);
+            will-change: transform;
+        }
+
+        .book.is-open {
+            transform: translateX(0);
+        }
+
+        .book.is-closed .page,
+        .book.is-closed .single-scene {
+            visibility: hidden;
+        }
+
+        .book::before {
+            content: "";
+            position: absolute;
+            z-index: -2;
+            inset: 8px -8px -10px 8px;
+            border-radius: 7px 12px 12px 7px;
+            background: repeating-linear-gradient(to bottom, #fffefb 0 3px, #ecdce0 3px 4px);
+            box-shadow: 0 28px 60px rgba(91, 34, 57, 0.25);
+            transform: translateZ(-9px);
+        }
+
+        .book.is-closed::before {
+            left: calc(50% + 7px);
+        }
+
+        .book::after {
+            content: "";
+            position: absolute;
+            z-index: 4;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 18px;
+            pointer-events: none;
+            background: linear-gradient(90deg, rgba(82, 38, 55, 0.14), rgba(255, 255, 255, 0.36) 42%, rgba(82, 38, 55, 0.08));
+            transform: translateX(-50%);
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            padding: 7.5%;
+            background:
+                radial-gradient(circle at 12% 15%, rgba(255, 255, 255, 0.95) 0 1px, transparent 2px),
+                linear-gradient(135deg, #fffefb, var(--paper) 70%, #fff7f0);
+            background-size: 21px 21px, auto;
+            color: var(--ink);
+            box-shadow: inset 0 0 25px rgba(136, 82, 96, 0.055);
+            font-size: clamp(11px, 1.02vw, 15px);
+        }
+
+        .page-left {
+            left: 0;
+            border-radius: 7px 0 0 7px;
+            padding-right: 9%;
+        }
+
+        .page-right {
+            right: 0;
+            border-radius: 0 7px 7px 0;
+            padding-left: 9%;
+        }
+
+        .page-left::after,
+        .page-right::after {
+            content: "";
+            position: absolute;
+            z-index: 0;
+            top: 0;
+            bottom: 0;
+            width: 14px;
+            pointer-events: none;
+        }
+
+        .page-left::after {
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(97, 53, 68, 0.09));
+        }
+
+        .page-right::after {
+            left: 0;
+            background: linear-gradient(90deg, rgba(97, 53, 68, 0.09), transparent);
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .eyebrow {
+            margin: 0 0 0.9em;
+            color: var(--rose);
+            font-size: 0.7em;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .dedication .floral-mark,
+        .title-page .floral-mark,
+        .end-page .floral-mark {
+            margin-bottom: 0.35em;
+            font-size: 2.6em;
+        }
+
+        .dedication h1,
+        .title-page h1,
+        .closing-page h1,
+        .end-page h1 {
+            margin: 0;
+            color: var(--rose-dark);
+            font-size: 2em;
+            font-weight: 500;
+            line-height: 1.16;
+        }
+
+        .dedication p,
+        .title-page p,
+        .closing-page p,
+        .end-page p {
+            max-width: 24em;
+            margin: 1em auto 0;
+            font-size: 0.98em;
+            line-height: 1.8;
+        }
+
+        .dedication .signature {
+            margin-top: 1.7em;
+            color: var(--rose);
+            font-family: Caveat, cursive;
+            font-size: 1.65em;
+        }
+
+        .title-page h1 {
+            font-size: 2.3em;
+        }
+
+        .title-page .subtitle {
+            color: #815565;
+            font-size: 0.88em;
+            line-height: 1.7;
+        }
+
+        .title-page .start-cue {
+            margin-top: 2em;
+            color: var(--rose);
+            font-size: 0.78em;
+            letter-spacing: 0.06em;
+        }
+
+        .photo-layout {
+            justify-content: space-between;
+            gap: 0.6em;
+        }
+
+        .polaroid {
+            position: relative;
+            display: flex;
+            width: min(100%, 21em);
+            max-height: 84%;
+            flex: 1 1 auto;
+            flex-direction: column;
+            margin: 0;
+            padding: 0.72em 0.72em 0.82em;
+            background: #fff;
+            box-shadow: 0 0.55em 1.4em rgba(91, 34, 57, 0.18);
+            transform: rotate(-1.3deg);
+        }
+
+        .polaroid::before,
+        .polaroid::after {
+            content: "";
+            position: absolute;
+            z-index: 2;
+            top: -0.55em;
+            width: 4.5em;
+            height: 1.2em;
+            background: rgba(243, 196, 208, 0.72);
+            box-shadow: 0 1px 2px rgba(91, 34, 57, 0.07);
+        }
+
+        .polaroid::before {
+            left: -0.7em;
+            transform: rotate(-28deg);
+        }
+
+        .polaroid::after {
+            right: -0.65em;
+            transform: rotate(25deg);
+        }
+
+        .polaroid img {
+            display: block;
+            width: 100%;
+            min-height: 0;
+            flex: 1 1 auto;
+            object-fit: cover;
+            border: 0;
+            pointer-events: none;
+            transform: translate3d(var(--image-shift-x, 0px), var(--image-shift-y, 0px), 0) scale(var(--image-scale, 1));
+            transition: transform 220ms ease-out;
+            -webkit-user-drag: none;
+        }
+
+        .polaroid figcaption {
+            padding-top: 0.24em;
+            color: var(--rose);
+            font-family: Caveat, cursive;
+            font-size: 1.55em;
+            font-weight: 600;
+            line-height: 1.12;
+        }
+
+        .photo-subtitle {
+            margin: 0;
+            color: #896b75;
+            font-size: 0.72em;
+            line-height: 1.35;
+        }
+
+        .message-page {
+            align-items: flex-start;
+            justify-content: center;
+            padding: 7% 3% 7% 5%;
+            text-align: left;
+        }
+
+        .message-page .number {
+            margin: 0 0 0.65em;
+            color: var(--rose);
+            font-size: 0.78em;
+            font-weight: 600;
+            letter-spacing: 0.17em;
+            text-transform: uppercase;
+        }
+
+        .message-page h2 {
+            margin: 0;
+            color: var(--rose-dark);
+            font-size: 1.42em;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .message-page .heart-line {
+            margin: 0.6em 0 0;
+            color: #d45b83;
+            font-size: 1.25em;
+        }
+
+        .message-page blockquote {
+            margin: 1em 0 0;
+            color: #60404d;
+            font-size: 0.91em;
+            font-style: italic;
+            line-height: 1.9;
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 4%;
+            color: #bd8a9d;
+            font-size: 0.64em;
+            letter-spacing: 0.1em;
+        }
+
+        .page-left .page-number {
+            left: 9%;
+        }
+
+        .page-right .page-number {
+            right: 9%;
+        }
+
+        .closing-page {
+            position: relative;
+        }
+
+        .closing-page::before {
+            content: "✿";
+            position: absolute;
+            top: 10%;
+            left: 12%;
+            color: rgba(212, 91, 131, 0.16);
+            font-size: 3em;
+        }
+
+        .end-page {
+            border: 0.75em solid #f5d1df;
+            outline: 1px solid rgba(255, 255, 255, 0.55);
+            outline-offset: -1.1em;
+            background:
+                radial-gradient(ellipse at 50% 36%, rgba(255, 255, 255, 0.28), transparent 45%),
+                linear-gradient(145deg, #f4aec6, #e56f9c 58%, #cf4b7c);
+            color: #fffaf6;
+        }
+
+        .end-page h1,
+        .end-page p,
+        .end-page .eyebrow {
+            color: #fffaf6;
+        }
+
+        .end-page h1 {
+            font-size: 2.4em;
+        }
+
+        .end-page .page-number {
+            color: rgba(255, 250, 246, 0.76);
+        }
+
+        .read-again {
+            margin-top: 1.55em;
+            padding: 0.72em 1.3em;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: 999px;
+            background: var(--paper);
+            color: var(--rose);
+            cursor: pointer;
+            font-size: 0.82em;
+            font-weight: 600;
+            transition: transform 180ms ease, background 180ms ease;
+        }
+
+        .read-again:hover {
+            background: #fff;
+            transform: translateY(-2px);
+        }
+
+        .single-scene {
+            display: none;
+        }
+
+        .page-cover {
+            position: absolute;
+            z-index: 8;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+
+        .cover-face {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 9%;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.52);
+            border-radius: 4px 11px 11px 4px;
+            backface-visibility: hidden;
+            text-align: center;
+        }
+
+        .cover-front {
+            background:
+                radial-gradient(ellipse at 50% 28%, rgba(255, 255, 255, 0.27), transparent 40%),
+                linear-gradient(145deg, #f6b1c9, #e66d99 57%, #c83c72);
+            box-shadow: inset 1.1em 0 1.7em rgba(91, 14, 51, 0.2), inset 0 0 0 0.55em rgba(255, 255, 255, 0.12);
+            color: #fffaf6;
+        }
+
+        .cover-front::before {
+            content: "";
+            position: absolute;
+            inset: 5%;
+            border: 1px solid rgba(255, 255, 255, 0.52);
+            border-radius: 3px 8px 8px 3px;
+            pointer-events: none;
+        }
+
+        .cover-front .cover-emoji {
+            margin-bottom: 0.3em;
+            font-size: 2.5em;
+        }
+
+        .cover-front .eyebrow,
+        .cover-front h1,
+        .cover-front p {
+            position: relative;
+            z-index: 1;
+            color: #fffaf6;
+        }
+
+        .cover-front h1 {
+            margin: 0;
+            font-size: 2.1em;
+            font-weight: 600;
+            line-height: 1.15;
+        }
+
+        .cover-front p {
+            max-width: 19em;
+            margin: 0.8em 0 0;
+            font-size: 0.83em;
+            line-height: 1.65;
+        }
+
+        .cover-front .open-hint {
+            margin-top: 2em;
+            color: #fff5f8;
+            font-family: Caveat, cursive;
+            font-size: 1.25em;
+        }
+
+        .cover-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #fffaf6, #f8e4e9);
+            box-shadow: inset -1em 0 1.2em rgba(102, 44, 67, 0.08);
+        }
+
+        .turn-sheet {
+            position: absolute;
+            z-index: 6;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .turn-sheet.mobile-sheet {
+            left: 0;
+            width: 100%;
+        }
+
+        .turn-face {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            padding: 7.5%;
+            background:
+                radial-gradient(circle at 12% 15%, rgba(255, 255, 255, 0.95) 0 1px, transparent 2px),
+                linear-gradient(135deg, #fffefb, var(--paper) 70%, #fff7f0);
+            background-size: 21px 21px, auto;
+            backface-visibility: hidden;
+            box-shadow: inset 0 0 25px rgba(136, 82, 96, 0.055);
+            font-size: clamp(11px, 1.02vw, 15px);
+        }
+
+        .turn-face .polaroid img {
+            transition: none;
+        }
+
+        .turn-face.front {
+            border-radius: 0 7px 7px 0;
+        }
+
+        .turn-face.back {
+            border-radius: 7px 0 0 7px;
+            transform: rotateY(180deg);
+        }
+
+        .turn-sheet::before {
+            content: "";
+            position: absolute;
+            z-index: 4;
+            inset: 0 auto 0 0;
+            width: 22px;
+            pointer-events: none;
+            background: linear-gradient(90deg, rgba(70, 29, 48, 0.3), rgba(70, 29, 48, 0.08), transparent);
+            transform: translateZ(1px);
+        }
+
+        .turn-sheet::after {
+            content: "";
+            position: absolute;
+            z-index: 5;
+            inset: 0;
+            pointer-events: none;
+            opacity: var(--shade, 0);
+            background: linear-gradient(100deg, rgba(83, 33, 55, 0.48), rgba(83, 33, 55, 0.13) 24%, transparent 72%);
+            transform: translateZ(2px);
+        }
+
+        .cover-turning {
+            z-index: 10;
+        }
+
+        .book.is-closed {
+            cursor: pointer;
+        }
+
+        .book.is-turning {
+            cursor: grabbing;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 12px;
+            width: min(100%, 720px);
+            justify-self: center;
+        }
+
+        .controls-side {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .controls-side:last-child {
+            justify-content: flex-end;
+        }
+
+        .control-button {
+            display: inline-flex;
+            min-width: 42px;
+            min-height: 42px;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 0 13px;
+            border: 1px solid rgba(173, 20, 87, 0.24);
+            border-radius: 999px;
+            background: rgba(255, 250, 246, 0.88);
+            color: var(--rose);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+        }
+
+        .control-button:hover:not(:disabled) {
+            background: #fff;
+            box-shadow: 0 5px 14px rgba(121, 17, 63, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .control-button:disabled {
+            cursor: default;
+            opacity: 0.42;
+        }
+
+        .progress-area {
+            display: grid;
+            min-width: 150px;
+            justify-items: center;
+            gap: 7px;
+        }
+
+        .progress-track {
+            width: min(25vw, 220px);
+            height: 5px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(173, 20, 87, 0.14);
+        }
+
+        .progress-fill {
+            display: block;
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #e88cab, var(--rose));
+            transition: width 350ms ease;
+        }
+
+        .page-indicator {
+            color: #845568;
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @media (max-width: 819px) {
+            :root {
+                --pw: min(82vw, 48dvh, 390px);
+            }
+
+            body {
+                gap: 5px;
+            }
+
+            .topbar {
+                min-height: 28px;
+            }
+
+            .top-note {
+                font-size: 0.68rem;
+            }
+
+            .book {
+                width: var(--pw);
+                transform: translateX(0);
+            }
+
+            .page-cover {
+                left: 0;
+                width: 100%;
+            }
+
+            .book::after {
+                display: none;
+            }
+
+            .page {
+                left: 0;
+                right: auto;
+                width: 100%;
+                border-radius: 7px;
+                padding: 7%;
+                font-size: clamp(12px, 3.25vw, 17px);
+            }
+
+            .page-left {
+                display: none;
+            }
+
+            .page-right {
+                display: none;
+            }
+
+            .single-scene {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                inset: 0;
+                overflow: hidden;
+                border-radius: 7px;
+                padding: 7%;
+                background:
+                    radial-gradient(circle at 12% 15%, rgba(255, 255, 255, 0.95) 0 1px, transparent 2px),
+                    linear-gradient(135deg, #fffefb, var(--paper) 70%, #fff7f0);
+                background-size: 21px 21px, auto;
+                box-shadow: inset 0 0 25px rgba(136, 82, 96, 0.055);
+                font-size: clamp(12px, 3.25vw, 17px);
+            }
+
+            .single-scene > .dedication,
+            .single-scene > .title-page {
+                width: 100%;
+                height: 50%;
+                flex: 0 0 50%;
+            }
+
+            .single-scene .photo-layout {
+                width: 100%;
+                height: 60%;
+                flex: 0 0 60%;
+                padding: 6% 5%;
+            }
+
+            .single-scene .polaroid {
+                width: min(100%, 19em);
+            }
+
+            .single-scene .message-page {
+                align-items: center;
+                width: 100%;
+                height: 40%;
+                flex: 1 1 40%;
+                padding: 1% 5% 5%;
+                text-align: center;
+            }
+
+            .single-scene .message-page blockquote {
+                margin-top: 0.7em;
+                font-size: 0.86em;
+                line-height: 1.65;
+            }
+
+            .turn-face {
+                padding: 7%;
+                font-size: clamp(12px, 3.25vw, 17px);
+            }
+
+            .turn-face .page-left,
+            .turn-face .page-right {
+                display: none;
+            }
+
+            .turn-face .single-scene {
+                display: flex;
+            }
+
+            .cover-face {
+                border-radius: 6px;
+                font-size: clamp(12px, 3.25vw, 17px);
+            }
+
+            .controls {
+                grid-template-columns: auto 1fr auto;
+                gap: 6px;
+            }
+
+            .controls-side {
+                gap: 5px;
+            }
+
+            .control-button {
+                min-width: 39px;
+                min-height: 39px;
+                padding: 0 10px;
+                font-size: 0.78rem;
+            }
+
+            .controls-side .label {
+                display: none;
+            }
+
+            .progress-area {
+                min-width: 100px;
+            }
+
+            .progress-track {
+                width: min(29vw, 150px);
+            }
+        }
+
+        @media (max-width: 380px) {
+            :root {
+                --pw: min(84vw, 45dvh, 350px);
+            }
+
+            .topbar {
+                gap: 7px;
+            }
+
+            .back-link,
+            .top-note {
+                font-size: 0.65rem;
+            }
+
+            .control-button {
+                min-width: 36px;
+                min-height: 36px;
+                padding: 0 8px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="petal-field" aria-hidden="true">
+        <span class="petal" style="--x:8%;--y:20%;--size:19px;--depth:-100px;--opacity:.48;--duration:5s;--delay:-2s">🌸</span>
+        <span class="petal" style="--x:89%;--y:19%;--size:17px;--depth:0px;--opacity:.6;--duration:6s;--delay:-3s">💖</span>
+        <span class="petal" style="--x:15%;--y:78%;--size:14px;--depth:100px;--opacity:.45;--duration:7s;--delay:-4s">✿</span>
+        <span class="petal" style="--x:84%;--y:76%;--size:22px;--depth:-160px;--opacity:.42;--duration:5.5s;--delay:-1s">🌸</span>
+        <span class="petal" style="--x:50%;--y:11%;--size:13px;--depth:80px;--opacity:.4;--duration:6.5s;--delay:-3.5s">💗</span>
+        <span class="petal" style="--x:4%;--y:54%;--size:12px;--depth:40px;--opacity:.38;--duration:4.5s;--delay:-2.5s">✿</span>
+        <span class="petal" style="--x:95%;--y:53%;--size:16px;--depth:-60px;--opacity:.43;--duration:7.5s;--delay:-5s">🌸</span>
+    </div>
+
+    <header class="topbar">
+        <a class="back-link" href="index.html">← Back to the album</a>
+        <span class="top-note">A little book made with love 🦔🌸💖</span>
+    </header>
+
+    <main class="book-stage" id="bookStage" aria-label="Interactive Princess Diane photo book">
+        <div class="book is-closed" id="book" role="group" aria-label="Princess Diane photo book">
+            <div class="page page-left" id="leftPage"></div>
+            <div class="page page-right" id="rightPage"></div>
+            <div class="single-scene" id="singleScene"></div>
+            <div class="page-cover" id="cover" aria-hidden="true">
+                <div class="cover-face cover-front">
+                    <span class="cover-emoji">🦔🌸💖</span>
+                    <span class="eyebrow">A little book made for you</span>
+                    <h1>Princess Diane</h1>
+                    <p>A Cute Collection of Pink Memories &amp; Capybara Vibes</p>
+                    <span class="open-hint">Tap or drag to open ✿</span>
+                </div>
+                <div class="cover-face cover-back"></div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="controls" aria-label="Photobook controls">
+        <div class="controls-side">
+            <button class="control-button" id="prevButton" type="button" aria-label="Previous page" title="Previous page">
+                <span aria-hidden="true">←</span><span class="label">Prev</span>
+            </button>
+        </div>
+        <div class="progress-area">
+            <div class="progress-track" role="progressbar" aria-label="Photobook progress" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1">
+                <span class="progress-fill" id="progressFill"></span>
+            </div>
+            <span class="page-indicator" id="pageIndicator" aria-live="polite">Cover</span>
+        </div>
+        <div class="controls-side">
+            <button class="control-button" id="musicButton" type="button" aria-label="Turn music on" title="Turn music on">
+                <span aria-hidden="true" id="musicIcon">♫</span><span class="label">Music</span>
+            </button>
+            <button class="control-button" id="nextButton" type="button" aria-label="Next page" title="Next page">
+                <span class="label">Next</span><span aria-hidden="true">→</span>
+            </button>
+        </div>
+    </nav>
+
+    <audio id="backgroundMusic" src="Arthur%20Nery%20-%20Binhi.mp3" loop preload="none"></audio>
+    <p class="sr-only" id="announcement" aria-live="polite"></p>
+
+    <script>
+        // Edit this list to change each photograph, handwritten caption, subtitle, or message.
+        const photoData = [
+            {
+                image: "incheng1.jpg",
+                alt: "Princess Diane enjoying a sunny day at the beach",
+                title: "Beach Vibes 🌊",
+                caption: "Soaking up the sun in style.",
+                subtitle: "Salt air, soft waves, and a sunlit smile.",
+                message: "Standing by the ocean with the breeze in your hair—you shine brighter than the sunshine on the water. Every beach day is instantly better with you around",
+                position: "50% 52%"
+            },
+            {
+                image: "incheng2.jpg",
+                alt: "Princess Diane smiling on a hiking trail",
+                title: "Glow Up ✨",
+                caption: "A look worth remembering.",
+                subtitle: "A little trail-side moment to keep close.",
+                message: "Every single time I look at this picture, I can't help but fall for your smile all over again. You have this effortless grace that just lights up the whole room",
+                position: "50% 32%"
+            },
+            {
+                image: "incheng3.jpg",
+                alt: "Princess Diane in sunglasses on an outdoor adventure",
+                title: "Adventure Time 🎒",
+                caption: "Fun hiking energy!",
+                subtitle: "Ready for another happy little adventure.",
+                message: "Rocking those cute sunglasses and ready for any trail! Your energy and love for adventure make every journey together so much fun",
+                position: "43% 35%"
+            },
+            {
+                image: "incheng4.jpg",
+                alt: "Princess Diane enjoying a bright day outdoors",
+                title: "Sunny Trails ☀",
+                caption: "A beautiful day outdoors.",
+                subtitle: "Blue skies, green trails, and your lovely smile.",
+                message: "Looks like such a perfect day under the blue skies. But if I'm being honest, your happy smile is what really makes this photo so special",
+                position: "50% 38%"
+            },
+            {
+                image: "incheng5.jpg",
+                alt: "Princess Diane sitting among the mountains",
+                title: "Peak View ⛰️",
+                caption: "Relaxing at the summit.",
+                subtitle: "A quiet pause above the clouds.",
+                message: "The mountain backdrop is breathtaking, but my eyes still go straight to you. You really have a way of catching my attention, hehe",
+                position: "50% 48%"
+            },
+            {
+                image: "incheng6.jpg",
+                alt: "Princess Diane celebrating at the Peak 3 sign",
+                title: "Peak 3 Conqueror 🏆",
+                caption: "Standing tall at the peak.",
+                subtitle: "One more summit, one very proud smile.",
+                message: "Conquered Peak 3! Seeing you make it to the top shows how impressive and capable you are. I'm really proud of you",
+                position: "50% 42%"
+            },
+            {
+                image: "incheng7.jpg",
+                alt: "A close-up portrait of Princess Diane",
+                title: "Soft & Cute 💕",
+                caption: "Pretty details up close.",
+                subtitle: "A tiny detail I could look at forever.",
+                message: "Just a sweet little reminder of how lovely you are. I don't know if you notice, but I definitely have a soft spot for you and your kind heart",
+                position: "72% 34%"
+            },
+            {
+                image: "incheng8.jpg",
+                alt: "Princess Diane glowing under evening lights",
+                title: "Evening Charm 🌙",
+                caption: "Night lights & sweet smiles.",
+                subtitle: "A little glow to end a lovely day.",
+                message: "All dressed up and glowing under the evening lights! You look absolutely stunning here... kind of hard not to stare, to be honest",
+                position: "50% 57%"
+            }
+        ];
+
+        const book = document.getElementById("book");
+        const cover = document.getElementById("cover");
+        const leftPage = document.getElementById("leftPage");
+        const rightPage = document.getElementById("rightPage");
+        const singleScene = document.getElementById("singleScene");
+        const prevButton = document.getElementById("prevButton");
+        const nextButton = document.getElementById("nextButton");
+        const progressFill = document.getElementById("progressFill");
+        const progressBar = document.querySelector(".progress-track");
+        const pageIndicator = document.getElementById("pageIndicator");
+        const announcement = document.getElementById("announcement");
+        const audio = document.getElementById("backgroundMusic");
+        const musicButton = document.getElementById("musicButton");
+        const musicIcon = document.getElementById("musicIcon");
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const stageCount = photoData.length + 2;
+        const SMALL_SCREEN = "(max-width: 819px)";
+
+        let stageIndex = -1;
+        let isSinglePage = window.matchMedia(SMALL_SCREEN).matches;
+        let isAnimating = false;
+        let animationFrame = 0;
+        let activeSheet = null;
+        let pointerState = null;
+        let suppressClick = false;
+        let musicStarted = false;
+
+        audio.volume = 0.6;
+
+        function escapeHTML(value) {
+            return String(value).replace(/[&<>"']/g, function(character) {
+                return {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#39;"
+                }[character];
+            });
+        }
+
+        function photoMarkup(photo, index) {
+            return `
+                <div class="page-content photo-layout">
+                    <figure class="polaroid">
+                        <img src="${escapeHTML(photo.image)}" alt="${escapeHTML(photo.alt)}" draggable="false" style="object-position:${escapeHTML(photo.position)}">
+                        <figcaption>${escapeHTML(photo.caption)}</figcaption>
+                    </figure>
+                    <p class="photo-subtitle">${escapeHTML(photo.subtitle)}</p>
+                    <span class="page-number">${String(index + 1).padStart(2, "0")}</span>
+                </div>`;
+        }
+
+        function messageMarkup(photo, index) {
+            return `
+                <div class="page-content message-page">
+                    <p class="number">No. ${String(index + 1).padStart(2, "0")}</p>
+                    <h2>${escapeHTML(photo.title)}</h2>
+                    <p class="heart-line" aria-hidden="true">🦔 🌸 💖</p>
+                    <blockquote>${escapeHTML(photo.message)}</blockquote>
+                    <span class="page-number">${String(index + 1).padStart(2, "0")}</span>
+                </div>`;
+        }
+
+        function sceneMarkup(index) {
+            if (index === 0) {
+                return `
+                    <div class="page-content dedication">
+                        <span class="floral-mark" aria-hidden="true">🦔🌸💖</span>
+                        <p class="eyebrow">A little dedication</p>
+                        <h1>For you, Diane</h1>
+                        <p>For all the bright little moments, the long happy trails, and every smile that makes an ordinary day feel special.</p>
+                        <p class="signature">Made with love, just for you ✿</p>
+                        <span class="page-number">01</span>
+                    </div>
+                    <div class="page-content title-page">
+                        <span class="floral-mark" aria-hidden="true">🌸</span>
+                        <p class="eyebrow">A collection of little moments</p>
+                        <h1>Princess<br>Diane</h1>
+                        <p class="subtitle">A Cute Collection of Pink Memories &amp; Capybara Vibes</p>
+                        <p class="start-cue">Turn the page to begin ✿</p>
+                        <span class="page-number">02</span>
+                    </div>`;
+            }
+
+            if (index > 0 && index <= photoData.length) {
+                const photoIndex = index - 1;
+                return photoMarkup(photoData[photoIndex], photoIndex)
+                    + messageMarkup(photoData[photoIndex], photoIndex);
+            }
+
+            return `
+                <div class="page-content closing-page">
+                    <span class="floral-mark" aria-hidden="true">🌸🦔</span>
+                    <p class="eyebrow">A little note before we close</p>
+                    <h1>Thank you</h1>
+                    <p>Thank you for filling these pages with so much light. May your days be soft, your heart be happy, and your next adventure be a beautiful one.</p>
+                    <p class="signature">Keep shining, Diane 💖</p>
+                    <span class="page-number">09</span>
+                </div>
+                <div class="page-content end-page">
+                    <span class="floral-mark" aria-hidden="true">🦔🌸💖</span>
+                    <p class="eyebrow">Until the next little story</p>
+                    <h1>The End</h1>
+                    <p>Every lovely memory deserves another look.</p>
+                    <button class="read-again" type="button">Read again ✿</button>
+                    <span class="page-number">10</span>
+                </div>`;
+        }
+
+        function mobileSceneMarkup(index) {
+            if (index === 0) {
+                return `
+                    <div class="page-content dedication">
+                        <span class="floral-mark" aria-hidden="true">🦔🌸💖</span>
+                        <p class="eyebrow">A little dedication</p>
+                        <h1>For you, Diane</h1>
+                        <p>For all the bright little moments, the long happy trails, and every smile that makes an ordinary day feel special.</p>
+                        <p class="signature">Made with love, just for you ✿</p>
+                        <span class="page-number">01</span>
+                    </div>
+                    <div class="page-content title-page">
+                        <span class="floral-mark" aria-hidden="true">🌸</span>
+                        <p class="eyebrow">A collection of little moments</p>
+                        <h1>Princess Diane</h1>
+                        <p class="subtitle">A Cute Collection of Pink Memories &amp; Capybara Vibes</p>
+                        <p class="start-cue">Turn the page to begin ✿</p>
+                        <span class="page-number">02</span>
+                    </div>`;
+            }
+
+            if (index > 0 && index <= photoData.length) {
+                const photoIndex = index - 1;
+                return photoMarkup(photoData[photoIndex], photoIndex)
+                    + messageMarkup(photoData[photoIndex], photoIndex);
+            }
+
+            return `
+                <div class="page-content closing-page">
+                    <span class="floral-mark" aria-hidden="true">🌸🦔</span>
+                    <p class="eyebrow">A little note before we close</p>
+                    <h1>Thank you</h1>
+                    <p>Thank you for filling these pages with so much light. May your days be soft, your heart be happy, and your next adventure be a beautiful one.</p>
+                    <p class="signature">Keep shining, Diane 💖</p>
+                    <button class="read-again" type="button">Read again ✿</button>
+                    <span class="page-number">10</span>
+                </div>`;
+        }
+
+        function renderStage() {
+            if (stageIndex < 0) {
+                return;
+            }
+
+            const markup = sceneMarkup(stageIndex);
+            const parser = document.createElement("template");
+            parser.innerHTML = markup;
+            const pages = parser.content.querySelectorAll(".page-content");
+
+            if (stageIndex === 0) {
+                leftPage.innerHTML = pages[0].outerHTML;
+                rightPage.innerHTML = pages[1].outerHTML;
+            } else if (stageIndex === photoData.length + 1) {
+                leftPage.innerHTML = pages[0].outerHTML;
+                rightPage.innerHTML = pages[1].outerHTML;
+            } else {
+                leftPage.innerHTML = pages[0].outerHTML;
+                rightPage.innerHTML = pages[1].outerHTML;
+            }
+
+            singleScene.innerHTML = mobileSceneMarkup(stageIndex);
+            const percentage = ((stageIndex + 1) / stageCount) * 100;
+            progressFill.style.width = percentage + "%";
+            progressBar.setAttribute("aria-valuemax", String(stageCount));
+            progressBar.setAttribute("aria-valuenow", String(stageIndex + 1));
+            pageIndicator.textContent = "Page " + (stageIndex + 1) + " of " + stageCount;
+            announcement.textContent = stageIndex === 0
+                ? "The book is open. Dedication and title page."
+                : stageIndex > photoData.length
+                    ? "Closing pages."
+                    : "Photo " + stageIndex + " of " + photoData.length + ". " + photoData[stageIndex - 1].title;
+            prevButton.disabled = stageIndex <= 0;
+            nextButton.disabled = stageIndex === photoData.length + 1;
+            nextButton.setAttribute("aria-label", stageIndex < 0 ? "Open photobook" : "Next page");
+            nextButton.title = stageIndex < 0 ? "Open photobook" : "Next page";
+        }
+
+        function makeTurnSheet(frontHTML, backHTML, isMobile) {
+            const sheet = document.createElement("div");
+            sheet.className = "turn-sheet" + (isMobile ? " mobile-sheet" : "");
+            const mobileFace = function(html) {
+                return isMobile ? `<div class="single-scene">${html}</div>` : html;
+            };
+            sheet.innerHTML = `
+                <div class="turn-face front">${mobileFace(frontHTML)}</div>
+                <div class="turn-face back">${mobileFace(backHTML)}</div>`;
+            book.appendChild(sheet);
+            return sheet;
+        }
+
+        function getFaceHTML(stage, side) {
+            const parsed = document.createElement("template");
+            parsed.innerHTML = sceneMarkup(stage);
+            const faces = parsed.content.querySelectorAll(".page-content");
+            const desiredIndex = side === "left" ? 0 : 1;
+            return faces[desiredIndex] ? faces[desiredIndex].outerHTML : "";
+        }
+
+        function openCover() {
+            if (isAnimating || stageIndex !== -1) {
+                return;
+            }
+
+            startMusicAfterGesture();
+            isAnimating = true;
+            book.classList.remove("is-closed");
+            book.classList.add("is-open", "is-turning");
+            const sheet = makeTurnSheet(
+                `<div class="page-content title-page"><span class="floral-mark">🌸</span><p class="eyebrow">A collection of little moments</p><h1>Princess<br>Diane</h1><p class="subtitle">A Cute Collection of Pink Memories &amp; Capybara Vibes</p><p class="start-cue">Turn the page to begin ✿</p></div>`,
+                `<div class="page-content dedication"><span class="floral-mark">🦔🌸💖</span><p class="eyebrow">A little dedication</p><h1>For you, Diane</h1><p>For all the bright little moments, the long happy trails, and every smile that makes an ordinary day feel special.</p><p class="signature">Made with love, just for you ✿</p></div>`,
+                isSinglePage
+            );
+            sheet.classList.add("cover-turning");
+            cover.style.display = "none";
+            animateSheet(sheet, 0, -180, reducedMotion.matches ? 190 : 920, function() {
+                sheet.remove();
+                stageIndex = 0;
+                renderStage();
+                isAnimating = false;
+                book.classList.remove("is-turning");
+            });
+        }
+
+        // Cosine easing keeps the flip gentle at both ends; degrees map pointer progress directly to a half-turn.
+        function animateSheet(sheet, fromDegrees, toDegrees, duration, onComplete) {
+            const startTime = performance.now();
+            const direction = toDegrees >= fromDegrees ? 1 : -1;
+            activeSheet = sheet;
+
+            function frame(now) {
+                if (!sheet.isConnected) {
+                    activeSheet = null;
+                    return;
+                }
+
+                const progress = Math.min(1, (now - startTime) / duration);
+                const eased = 0.5 - Math.cos(progress * Math.PI) / 2;
+                const angle = fromDegrees + (toDegrees - fromDegrees) * eased;
+                const parallax = Math.sin(progress * Math.PI);
+                sheet.style.transform = "rotateY(" + angle.toFixed(2) + "deg)";
+                sheet.style.setProperty("--shade", String(parallax * 0.72));
+                sheet.style.zIndex = String(20 + Math.round(parallax * 20));
+                sheet.querySelectorAll(".polaroid img").forEach(function(image) {
+                    image.style.setProperty("--image-scale", (1 + parallax * 0.065).toFixed(3));
+                    image.style.setProperty("--image-shift-x", (direction * parallax * 8).toFixed(1) + "px");
+                    image.style.setProperty("--image-shift-y", (-parallax * 4).toFixed(1) + "px");
+                });
+
+                if (progress < 1) {
+                    animationFrame = requestAnimationFrame(frame);
+                    return;
+                }
+
+                sheet.style.transform = "rotateY(" + toDegrees + "deg)";
+                sheet.style.setProperty("--shade", "0");
+                activeSheet = null;
+                onComplete(direction);
+            }
+
+            cancelAnimationFrame(animationFrame);
+            animationFrame = requestAnimationFrame(frame);
+        }
+
+        function turnTo(targetIndex, quick) {
+            if (isAnimating || targetIndex === stageIndex || targetIndex < 0 || targetIndex > photoData.length + 1) {
+                return;
+            }
+
+            if (stageIndex < 0) {
+                openCover();
+                return;
+            }
+
+            startMusicAfterGesture();
+            isAnimating = true;
+            book.classList.add("is-turning");
+            prevButton.disabled = true;
+            nextButton.disabled = true;
+            const forward = targetIndex > stageIndex;
+            let frontHTML;
+            let backHTML;
+            let from = 0;
+            let to = forward ? -180 : 180;
+
+            if (isSinglePage) {
+                frontHTML = mobileSceneMarkup(stageIndex);
+                backHTML = mobileSceneMarkup(targetIndex);
+            } else if (forward) {
+                frontHTML = getFaceHTML(stageIndex, "right");
+                backHTML = getFaceHTML(targetIndex, "left");
+            } else {
+                frontHTML = getFaceHTML(stageIndex, "left");
+                backHTML = getFaceHTML(targetIndex, "right");
+                from = 0;
+                to = 180;
+            }
+
+            const sheet = makeTurnSheet(frontHTML, backHTML, isSinglePage);
+            const duration = reducedMotion.matches ? 160 : quick ? 350 : 780;
+            animateSheet(sheet, from, to, duration, function() {
+                sheet.remove();
+                stageIndex = targetIndex;
+                renderStage();
+                isAnimating = false;
+                book.classList.remove("is-turning");
+                prevButton.disabled = stageIndex === 0;
+                nextButton.disabled = stageIndex === photoData.length + 1;
+            });
+        }
+
+        function readAgain() {
+            if (isAnimating) {
+                return;
+            }
+
+            if (stageIndex < 0) {
+                openCover();
+                return;
+            }
+
+            isAnimating = true;
+            book.classList.remove("is-open");
+            book.classList.add("is-turning");
+            const sheet = makeTurnSheet(
+                `<div class="page-content title-page"><span class="floral-mark">🌸</span><p class="eyebrow">A collection of little moments</p><h1>Princess<br>Diane</h1><p class="subtitle">A Cute Collection of Pink Memories &amp; Capybara Vibes</p><p class="start-cue">Tap or drag to open ✿</p></div>`,
+                `<div class="page-content dedication"><span class="floral-mark">🦔🌸💖</span><p class="eyebrow">A little dedication</p><h1>For you, Diane</h1><p>For all the bright little moments, the long happy trails, and every smile that makes an ordinary day feel special.</p></div>`,
+                isSinglePage
+            );
+            sheet.classList.add("cover-turning");
+            cover.style.display = "flex";
+            sheet.style.transform = "rotateY(-180deg)";
+            animateSheet(sheet, -180, 0, reducedMotion.matches ? 170 : 540, function() {
+                sheet.remove();
+                stageIndex = -1;
+                isAnimating = false;
+                book.classList.remove("is-turning");
+                pageIndicator.textContent = "Cover";
+                progressFill.style.width = "0%";
+                progressBar.setAttribute("aria-valuenow", "1");
+                prevButton.disabled = true;
+                nextButton.disabled = false;
+                nextButton.setAttribute("aria-label", "Open photobook");
+                nextButton.title = "Open photobook";
+                announcement.textContent = "Photobook cover.";
+                book.classList.add("is-closed");
+            });
+        }
+
+        function startMusicAfterGesture() {
+            if (musicStarted) {
+                return;
+            }
+
+            musicStarted = true;
+            audio.play().then(function() {
+                musicButton.setAttribute("aria-label", "Turn music off");
+                musicButton.title = "Turn music off";
+                musicIcon.textContent = "♫";
+            }).catch(function() {
+                musicStarted = false;
+                announcement.textContent = "Music could not start. Use the music button to try again.";
+            });
+        }
+
+        function toggleMusic() {
+            if (audio.paused) {
+                musicStarted = true;
+                audio.play().then(function() {
+                    musicButton.setAttribute("aria-label", "Turn music off");
+                    musicButton.title = "Turn music off";
+                    musicIcon.textContent = "♫";
+                }).catch(function() {
+                    musicStarted = false;
+                    announcement.textContent = "Music could not start. Please check the audio file.";
+                });
+            } else {
+                audio.pause();
+                musicButton.setAttribute("aria-label", "Turn music on");
+                musicButton.title = "Turn music on";
+                musicIcon.textContent = "♪";
+            }
+        }
+
+        function handlePointerDown(event) {
+            if (event.button !== undefined && event.button !== 0) {
+                return;
+            }
+            if (event.target.closest("button, a")) {
+                return;
+            }
+
+            const bounds = book.getBoundingClientRect();
+            const onRight = isSinglePage || event.clientX >= bounds.left + bounds.width / 2;
+            pointerState = {
+                id: event.pointerId,
+                startX: event.clientX,
+                startY: event.clientY,
+                lastX: event.clientX,
+                startedAt: performance.now(),
+                width: Math.max(1, isSinglePage ? bounds.width : bounds.width / 2),
+                onRight: onRight,
+                moved: false,
+                sheet: null
+            };
+            if (book.setPointerCapture) {
+                book.setPointerCapture(event.pointerId);
+            }
+        }
+
+        function handlePointerMove(event) {
+            updatePetalParallax(event);
+            if (!pointerState || pointerState.id !== event.pointerId || (isAnimating && !pointerState.sheet)) {
+                return;
+            }
+
+            const dx = event.clientX - pointerState.startX;
+            const dy = event.clientY - pointerState.startY;
+            pointerState.lastX = event.clientX;
+            if (Math.abs(dx) < 7 && Math.abs(dy) < 7) {
+                return;
+            }
+            pointerState.moved = true;
+
+            if (stageIndex < 0) {
+                if (!pointerState.sheet) {
+                    openCover();
+                    pointerState.sheet = activeSheet;
+                }
+                return;
+            }
+
+            if (pointerState.onRight && dx < 0 && stageIndex < photoData.length + 1) {
+                setDragAngle(dx, -1);
+            } else if (!pointerState.onRight && dx > 0 && stageIndex > 0) {
+                setDragAngle(dx, 1);
+            }
+        }
+
+        function setDragAngle(dx, direction) {
+            if (!pointerState.sheet) {
+                isAnimating = true;
+                book.classList.add("is-turning");
+                const target = stageIndex + (direction < 0 ? 1 : -1);
+                const frontHTML = isSinglePage
+                    ? mobileSceneMarkup(stageIndex)
+                    : getFaceHTML(stageIndex, direction < 0 ? "right" : "left");
+                const backHTML = isSinglePage
+                    ? mobileSceneMarkup(target)
+                    : getFaceHTML(target, direction < 0 ? "left" : "right");
+                pointerState.target = target;
+                pointerState.direction = direction;
+                pointerState.sheet = makeTurnSheet(frontHTML, backHTML, isSinglePage);
+            }
+
+            // Normalize drag distance by one page width, clamp it to a half-turn, then map to degrees.
+            const progress = Math.min(1, Math.abs(dx) / pointerState.width);
+            const angle = direction * progress * 180;
+            pointerState.sheet.style.transform = "rotateY(" + angle.toFixed(2) + "deg)";
+            const parallax = Math.sin(progress * Math.PI);
+            pointerState.sheet.style.setProperty("--shade", String(parallax * 0.72));
+            pointerState.sheet.style.zIndex = String(30 + Math.round(progress * 20));
+            pointerState.sheet.querySelectorAll(".polaroid img").forEach(function(image) {
+                image.style.setProperty("--image-scale", (1 + parallax * 0.065).toFixed(3));
+                image.style.setProperty("--image-shift-x", (direction * parallax * 8).toFixed(1) + "px");
+                image.style.setProperty("--image-shift-y", (-parallax * 4).toFixed(1) + "px");
+            });
+        }
+
+        function handlePointerUp(event) {
+            if (!pointerState || pointerState.id !== event.pointerId) {
+                return;
+            }
+
+            const state = pointerState;
+            pointerState = null;
+            if (state.moved) {
+                suppressClick = true;
+                window.setTimeout(function() { suppressClick = false; }, 0);
+            }
+
+            if (stageIndex < 0) {
+                if (state.moved || Math.abs(event.clientX - state.startX) < 10) {
+                    openCover();
+                }
+                return;
+            }
+
+            if (!state.sheet) {
+                return;
+            }
+
+            const dx = event.clientX - state.startX;
+            const elapsed = Math.max(1, performance.now() - state.startedAt);
+            const velocity = Math.abs(dx) / elapsed;
+            const progress = Math.min(1, Math.abs(dx) / state.width);
+            const shouldFinish = progress >= 0.3 || velocity > 0.55;
+            const fromAngle = Number((state.sheet.style.transform.match(/-?\d+(?:\.\d+)?/) || [0])[0]);
+            const finishAngle = state.direction * 180;
+
+            animateSheet(
+                state.sheet,
+                fromAngle,
+                shouldFinish ? finishAngle : 0,
+                reducedMotion.matches ? 130 : 280,
+                function() {
+                    if (shouldFinish) {
+                        stageIndex = state.target;
+                        renderStage();
+                    }
+                    state.sheet.remove();
+                    isAnimating = false;
+                    book.classList.remove("is-turning");
+                    prevButton.disabled = stageIndex <= 0;
+                    nextButton.disabled = stageIndex === photoData.length + 1;
+                }
+            );
+        }
+
+        function updatePetalParallax(event) {
+            const x = (event.clientX / window.innerWidth - 0.5) * 2;
+            const y = (event.clientY / window.innerHeight - 0.5) * 2;
+            const imageShiftX = (x * 3).toFixed(1) + "px";
+            const imageShiftY = (y * 3).toFixed(1) + "px";
+            document.querySelectorAll(".petal").forEach(function(petal) {
+                const depth = parseFloat(getComputedStyle(petal).getPropertyValue("--depth")) || 0;
+                const factor = 0.025 + Math.abs(depth) / 12000;
+                petal.style.setProperty("--shift-x", (x * depth * factor).toFixed(1) + "px");
+                petal.style.setProperty("--shift-y", (y * depth * factor).toFixed(1) + "px");
+            });
+            if (!reducedMotion.matches) {
+                document.querySelectorAll(".polaroid img").forEach(function(image) {
+                    image.style.setProperty("--image-shift-x", imageShiftX);
+                    image.style.setProperty("--image-shift-y", imageShiftY);
+                    image.style.setProperty("--image-scale", "1.025");
+                });
+            }
+        }
+
+        function handleBookClick(event) {
+            if (suppressClick || event.target.closest("button")) {
+                return;
+            }
+            if (stageIndex < 0) {
+                openCover();
+                return;
+            }
+            const bounds = book.getBoundingClientRect();
+            const isRight = isSinglePage || event.clientX >= bounds.left + bounds.width / 2;
+            if (isRight) {
+                turnTo(Math.min(stageIndex + 1, photoData.length + 1));
+            } else {
+                turnTo(Math.max(stageIndex - 1, 0));
+            }
+        }
+
+        function handleKeydown(event) {
+            if (event.altKey || event.ctrlKey || event.metaKey) {
+                return;
+            }
+            if (event.key === "ArrowRight") {
+                event.preventDefault();
+                if (stageIndex < 0) {
+                    openCover();
+                } else {
+                    turnTo(Math.min(stageIndex + 1, photoData.length + 1));
+                }
+            } else if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                turnTo(Math.max(stageIndex - 1, 0));
+            } else if (event.key === "Escape" && stageIndex >= 0) {
+                readAgain();
+            } else if (event.key === " " && stageIndex < 0) {
+                event.preventDefault();
+                openCover();
+            }
+        }
+
+        function handleResize() {
+            const nowSinglePage = window.matchMedia(SMALL_SCREEN).matches;
+            if (nowSinglePage === isSinglePage) {
+                return;
+            }
+            isSinglePage = nowSinglePage;
+            if (activeSheet) {
+                cancelAnimationFrame(animationFrame);
+                activeSheet.remove();
+                activeSheet = null;
+            }
+            pointerState = null;
+            isAnimating = false;
+            if (stageIndex >= 0) {
+                book.classList.remove("is-turning", "is-closed");
+                book.classList.add("is-open");
+                renderStage();
+            } else {
+                cover.style.display = "";
+                book.classList.remove("is-open", "is-turning");
+                book.classList.add("is-closed");
+            }
+        }
+
+        book.addEventListener("pointerdown", handlePointerDown);
+        book.addEventListener("pointermove", handlePointerMove);
+        book.addEventListener("pointerup", handlePointerUp);
+        book.addEventListener("pointercancel", handlePointerUp);
+        book.addEventListener("click", handleBookClick);
+        book.addEventListener("click", function(event) {
+            if (event.target.closest(".read-again")) {
+                event.stopPropagation();
+                readAgain();
+            }
+        });
+        prevButton.addEventListener("click", function() {
+            if (stageIndex < 0) {
+                return;
+            }
+            turnTo(Math.max(stageIndex - 1, 0));
+        });
+        nextButton.addEventListener("click", function() {
+            if (stageIndex < 0) {
+                openCover();
+            } else {
+                turnTo(Math.min(stageIndex + 1, photoData.length + 1));
+            }
+        });
+        musicButton.addEventListener("click", toggleMusic);
+        document.addEventListener("keydown", handleKeydown);
+        window.addEventListener("resize", handleResize);
+
+        renderStage();
+        prevButton.disabled = true;
+    </script>
+</body>
+</html>

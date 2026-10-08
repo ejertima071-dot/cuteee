@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Princess Diane | Photo Album</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #fce4ec;
+            color: #4a1525;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* =========================
+            DESKTOP NAVIGATION
+        ========================= */
+
+        nav {
+            background: #f8bbd0;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(216, 27, 96, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid #f48fb1;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #880e4f;
+            margin: 0 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: #d81b60;
+        }
+
+        /* =========================
+            PAGE SYSTEM
+        ========================= */
+
+        .page {
+            display: none;
+            min-height: calc(100vh - 60px);
+        }
+
+        .page.active {
+            display: block;
+            animation: storyPageIn 0.72s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+        }
+
+        /* =========================
+            HOME
+        ========================= */
+
+        #home {
+            background: linear-gradient(135deg, #f8bbd0, #fce4ec);
+            text-align: center;
+            padding: 100px 20px;
+            min-height: 90vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #home.active {
+            display: flex;
+        }
+
+        .home-content {
+            max-width: 800px;
+        }
+
+        .storybook-cover {
+            position: relative;
+            isolation: isolate;
+            width: min(100%, 540px);
+            margin: 0 auto;
+            padding: 42px 34px 38px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-left: 14px solid #d94f7d;
+            border-radius: 8px 24px 24px 8px;
+            background:
+                radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.25), transparent 40%),
+                linear-gradient(145deg, #f48fb1, #e85c8b 55%, #d94378);
+            box-shadow: 0 22px 45px rgba(136, 14, 79, 0.25), inset 8px 0 14px rgba(136, 14, 79, 0.12);
+            color: #ffffff;
+            transform: perspective(900px) rotateY(-4deg);
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .storybook-cover::before {
+            content: "";
+            position: absolute;
+            z-index: 0;
+            top: 8px;
+            right: -13px;
+            bottom: -8px;
+            width: 13px;
+            border-radius: 0 12px 12px 0;
+            background: repeating-linear-gradient(to bottom, #fffafd 0 3px, #f9dce7 3px 5px);
+            box-shadow: 5px 8px 12px rgba(136, 14, 79, 0.18);
+        }
+
+        .storybook-cover::after {
+            content: "";
+            position: absolute;
+            z-index: 0;
+            pointer-events: none;
+            inset: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.48);
+            border-radius: 4px 17px 17px 4px;
+        }
+
+        .storybook-cover > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .storybook-cover:hover {
+            transform: perspective(900px) rotateY(0) translateY(-4px);
+            box-shadow: 0 28px 55px rgba(136, 14, 79, 0.3), inset 8px 0 14px rgba(136, 14, 79, 0.12);
+        }
+
+        .cover-kicker {
+            margin-bottom: 12px;
+            color: #fff8fb;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .storybook-cover .capy-badge {
+            margin-bottom: 8px;
+            font-size: 44px;
+        }
+
+        .storybook-cover h1 {
+            color: #ffffff;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 46px;
+            letter-spacing: 0.02em;
+            text-shadow: 0 3px 10px rgba(136, 14, 79, 0.2);
+        }
+
+        .storybook-cover p {
+            margin: 10px auto 20px;
+            color: #fff8fb;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .storybook-cover .heart {
+            margin: 10px 0 16px;
+            color: #fff2a6;
+            font-size: 30px;
+        }
+
+        .storybook-cover .view-button {
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            background: #fffafd;
+            color: #ad1457;
+            box-shadow: 0 7px 18px rgba(115, 10, 63, 0.25);
+        }
+
+        .storybook-cover .view-button:hover {
+            background: #fff0f6;
+        }
+
+        .storybook-cover .storybook-link {
+            display: block;
+            width: fit-content;
+            margin: 12px auto 0;
+            padding: 11px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .storybook-cover .storybook-link:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-2px);
+        }
+
+        .home-content h1 {
+            font-size: 55px;
+            color: #880e4f;
+            margin-bottom: 15px;
+        }
+
+        .home-content p {
+            font-size: 20px;
+            color: #ad1457;
+            margin-bottom: 30px;
+        }
+
+        .heart {
+            font-size: 45px;
+            color: #e91e63;
+            margin: 10px;
+        }
+
+        .capy-badge {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .view-button {
+            display: inline-block;
+            padding: 14px 30px;
+            background: #ec407a;
+            color: white;
+            border: 0;
+            text-decoration: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.3);
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        #backgroundMusic {
+            display: block;
+            width: min(100%, 360px);
+            margin: 0 auto 15px;
+        }
+
+        #startMusicButton {
+            margin: 0 auto 15px;
+        }
+
+        #startMusicButton[hidden] {
+            display: none;
+        }
+
+        .view-button:hover {
+            background: #d81b60;
+            transform: scale(1.05);
+        }
+
+        /* =========================
+            ABOUT
+        ========================= */
+
+        #about {
+            padding: 70px 20px;
+        }
+
+        .about {
+            max-width: 900px;
+            margin: auto;
+            padding: 50px;
+            background: #ffffff;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(244, 143, 177, 0.3);
+            border: 2px solid #f8bbd0;
+        }
+
+        .about h1 {
+            color: #880e4f;
+            font-size: 38px;
+            margin-bottom: 25px;
+        }
+
+        .about h2 {
+            color: #ad1457;
+            margin-bottom: 15px;
+        }
+
+        .about p {
+            line-height: 1.8;
+            color: #4a1525;
+            font-size: 17px;
+        }
+
+        .about-heart {
+            font-size: 40px;
+            color: #ec407a;
+            margin-bottom: 15px;
+        }
+
+        /* =========================
+            ALBUM
+        ========================= */
+
+        #album {
+            padding: 60px 20px;
+            background: #fce4ec;
+        }
+
+        .album {
+            position: relative;
+            isolation: isolate;
+            max-width: 1100px;
+            margin: auto;
+            padding: clamp(22px, 4vw, 46px);
+            overflow: hidden;
+            border: 1px solid #ead1da;
+            border-radius: 22px;
+            background:
+                linear-gradient(90deg, #f7edf0 0, #fffdfb 2%, #fffdfa 49.65%, #eadce1 50%, #fffdfa 50.35%, #fff 98%, #f7edf0 100%);
+            box-shadow: 0 22px 55px rgba(112, 44, 72, 0.14), 0 4px 12px rgba(112, 44, 72, 0.08);
+        }
+
+        .album::before {
+            content: "";
+            position: absolute;
+            z-index: 0;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: linear-gradient(to right, rgba(122, 61, 83, 0.1), rgba(255, 255, 255, 0.72));
+            box-shadow: 0 0 18px rgba(112, 44, 72, 0.08);
+            pointer-events: none;
+        }
+
+        .album > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .album h1 {
+            text-align: center;
+            color: #880e4f;
+            font-size: 38px;
+            margin-bottom: 25px;
+        }
+
+        /* =========================
+            SEARCH BAR
+        ========================= */
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border: 2px solid #f48fb1;
+            border-radius: 30px;
+            background: #ffffff;
+            color: #880e4f;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 4px 15px rgba(244, 143, 177, 0.2);
+        }
+
+        #searchInput:focus {
+            border-color: #ec407a;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 22px;
+            color: #ec407a;
+        }
+
+        .search-result {
+            text-align: center;
+            color: #ad1457;
+            margin-top: -25px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        /* =========================
+            PHOTO GRID
+        ========================= */
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .photo-card {
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(112, 44, 72, 0.12);
+            transition: transform 0.32s ease, box-shadow 0.32s ease;
+            overflow: hidden;
+            border: 1px solid #ecd5de;
+            cursor: pointer;
+        }
+
+        .page.active .photo-card {
+            animation: photoCardArrive 0.55s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+        }
+
+        .page.active .photo-card:nth-child(2) { animation-delay: 45ms; }
+        .page.active .photo-card:nth-child(3) { animation-delay: 90ms; }
+        .page.active .photo-card:nth-child(4) { animation-delay: 135ms; }
+        .page.active .photo-card:nth-child(5) { animation-delay: 180ms; }
+        .page.active .photo-card:nth-child(6) { animation-delay: 225ms; }
+        .page.active .photo-card:nth-child(7) { animation-delay: 270ms; }
+        .page.active .photo-card:nth-child(8) { animation-delay: 315ms; }
+        .page.active .photo-card:nth-child(9) { animation-delay: 360ms; }
+
+        .photo-card:hover {
+            transform: translateY(-8px) rotate(0deg) scale(1.015);
+            box-shadow: 0 16px 30px rgba(112, 44, 72, 0.2);
+        }
+
+        .photo-card:nth-child(odd) {
+            transform: rotate(-0.45deg);
+        }
+
+        .photo-card:nth-child(even) {
+            transform: rotate(0.45deg);
+        }
+
+        .photo-card:nth-child(odd):hover,
+        .photo-card:nth-child(even):hover {
+            transform: translateY(-8px) rotate(0deg) scale(1.015);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .photo-card h3 {
+            text-align: center;
+            color: #880e4f;
+            margin-top: 15px;
+        }
+
+        .photo-card p {
+            text-align: center;
+            font-size: 14px;
+            color: #ad1457;
+            margin-top: 7px;
+            margin-bottom: 8px;
+        }
+
+        /* =========================
+            MODAL MESSAGE POPUP
+        ========================= */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(74, 21, 37, 0.58);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            perspective: 1400px;
+            perspective-origin: 28% 50%;
+        }
+
+        .modal-content {
+            background:
+                radial-gradient(circle at 12% 12%, rgba(255, 255, 255, 0.9) 0 2px, transparent 3px),
+                linear-gradient(to right, #fbe4ec 0, #fffafd 28px, transparent 29px),
+                linear-gradient(145deg, #fffafd, #fff0f6);
+            background-size: 24px 24px, auto, auto;
+            border: 1px solid #edacc3;
+            border-left: 3px solid #cf4774;
+            padding: 24px 30px 22px 44px;
+            border-radius: 8px 22px 22px 8px;
+            max-width: 680px;
+            width: 100%;
+            max-height: 94vh;
+            overflow-y: auto;
+            text-align: center;
+            box-shadow: 10px 14px 0 -4px #f6d9e4, 14px 20px 0 -8px #fffafd, 0 24px 55px rgba(74, 21, 37, 0.34), inset 12px 0 15px rgba(173, 20, 87, 0.08);
+            position: relative;
+            animation: fadeIn 0.3s ease;
+            transform: rotateX(var(--book-tilt-y, 0deg)) rotateY(var(--book-tilt-x, 0deg));
+            transform-origin: left center;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+            will-change: transform;
+            transition: transform 0.24s ease-out;
+        }
+
+        .modal-content::before {
+            content: "";
+            position: absolute;
+            top: 16px;
+            bottom: 16px;
+            left: 24px;
+            width: 2px;
+            border-radius: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(217, 79, 125, 0.35) 12%, rgba(217, 79, 125, 0.35) 88%, transparent);
+            pointer-events: none;
+        }
+
+        .modal-content::after {
+            content: "";
+            position: absolute;
+            z-index: 2;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(100deg, rgba(80, 12, 43, 0.34), rgba(255, 255, 255, 0.36) 18%, transparent 48%);
+            opacity: 0;
+            transform: scaleX(0);
+            transform-origin: left center;
+            pointer-events: none;
+        }
+
+        .modal-content.book-opening {
+            animation: bookBodySettle 0.9s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+        }
+
+        .book-cover-leaf {
+            display: none;
+            position: absolute;
+            z-index: 5;
+            inset: 0;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            pointer-events: none;
+        }
+
+        .modal-content.book-opening .book-cover-leaf {
+            display: block;
+            animation: coverSwingOpen 0.9s cubic-bezier(0.55, 0.08, 0.35, 1) forwards;
+        }
+
+        .modal-content.book-opened .book-cover-leaf {
+            display: none;
+        }
+
+        .book-cover-front,
+        .book-cover-back {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            border-radius: 6px 19px 19px 6px;
+            backface-visibility: hidden;
+            text-align: center;
+        }
+
+        .book-cover-front {
+            padding: 28px;
+            background:
+                radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.18), transparent 38%),
+                linear-gradient(145deg, #f48fb1, #e85c8b 58%, #c93670);
+            color: #fffafd;
+            box-shadow: inset 11px 0 18px rgba(106, 10, 56, 0.22), inset 0 0 0 8px rgba(255, 255, 255, 0.13);
+        }
+
+        .book-cover-front::before,
+        .book-cover-back::before {
+            content: "";
+            position: absolute;
+            inset: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.48);
+            border-radius: 4px 13px 13px 4px;
+            pointer-events: none;
+        }
+
+        .book-cover-front > *,
+        .book-cover-back > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .book-cover-front .cover-kicker {
+            margin-bottom: 16px;
+            color: #fff2f8;
+        }
+
+        .book-cover-front .cover-emblem {
+            margin-bottom: 12px;
+            font-size: 44px;
+        }
+
+        .book-cover-front h2 {
+            color: #ffffff;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(30px, 6vw, 48px);
+            text-shadow: 0 3px 12px rgba(91, 8, 48, 0.25);
+        }
+
+        .book-cover-front p {
+            max-width: 360px;
+            margin-top: 12px;
+            color: #fff8fb;
+            line-height: 1.6;
+        }
+
+        .book-cover-back {
+            padding: 30px;
+            transform: rotateY(180deg);
+            background:
+                repeating-linear-gradient(to bottom, transparent 0 31px, rgba(199, 125, 153, 0.12) 31px 32px),
+                linear-gradient(135deg, #fffafd, #f9dfe9);
+            color: #ad1457;
+            box-shadow: inset -10px 0 16px rgba(173, 20, 87, 0.1);
+        }
+
+        .book-cover-back::before {
+            border-color: rgba(217, 79, 125, 0.32);
+        }
+
+        .book-cover-back p {
+            max-width: 350px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 19px;
+            font-style: italic;
+            line-height: 1.8;
+        }
+
+        .modal-content.page-turn-out {
+            animation: pageTurnOut 0.52s cubic-bezier(0.55, 0.05, 0.75, 0.35) forwards;
+            pointer-events: none;
+        }
+
+        .modal-content.page-turn-out::after {
+            animation: pageCurlShade 0.52s ease-in forwards;
+        }
+
+        .modal-content.page-turn-out .modal-photo {
+            animation: photoParallaxOut 0.52s ease-in forwards;
+        }
+
+        .modal-content.page-turn-out > :not(.modal-photo):not(.close-modal) {
+            animation: pageContentOut 0.4s ease-in forwards;
+        }
+
+        .modal-content.page-turn-in {
+            animation: pageTurnIn 0.72s cubic-bezier(0.16, 0.8, 0.25, 1) both;
+        }
+
+        .modal-content.page-turn-in .modal-photo {
+            animation: photoSlideZoom 0.72s cubic-bezier(0.16, 0.8, 0.25, 1) both;
+        }
+
+        .modal-content.page-turn-in > :not(.modal-photo):not(.close-modal) {
+            animation: pageContentIn 0.58s ease-out both;
+        }
+
+        .modal-title {
+            color: #ad1457;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 0.04em;
+            margin-top: 2px;
+        }
+
+        #modalPageNumber {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 14px;
+            border: 1px solid #f8bbd0;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #ad1457;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .book-progress {
+            height: 7px;
+            margin: 12px auto 0;
+            max-width: 280px;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #fce4ec;
+        }
+
+        #bookProgressFill {
+            display: block;
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #f8bbd0, #ec407a);
+            transition: width 0.4s ease;
+        }
+
+        .modal-photo {
+            display: block;
+            width: 100%;
+            max-height: 32vh;
+            margin: 14px auto 0;
+            padding: 7px;
+            object-fit: contain;
+            border: 2px solid #ffffff;
+            border-radius: 17px;
+            background: #ffffff;
+            box-shadow: 0 7px 20px rgba(173, 20, 87, 0.18);
+            transform: translate3d(var(--photo-shift-x, 0px), var(--photo-shift-y, 0px), 0) scale(var(--photo-scale, 1));
+            transition: transform 0.24s ease-out, box-shadow 0.24s ease-out;
+            will-change: transform;
+        }
+
+        .modal-content p {
+            color: #4a1525;
+            font-size: 17px;
+            line-height: 1.6;
+            margin: 14px 0 0;
+            padding: 12px 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.82);
+            font-style: italic;
+        }
+
+        #finalPageNote {
+            margin-top: 16px;
+            padding: 15px;
+            border: 1px dashed #f06292;
+            border-radius: 18px;
+            background: #fff0f6;
+            color: #ad1457;
+            line-height: 1.6;
+            animation: fadeIn 0.5s ease both;
+        }
+
+        #finalPageNote[hidden] {
+            display: none;
+        }
+
+        #nextPhotoButton {
+            margin-top: 14px;
+            border: 2px solid #ffffff;
+            background: linear-gradient(135deg, #f06292, #ec407a);
+            box-shadow: 0 6px 16px rgba(216, 27, 96, 0.25);
+        }
+
+        #nextPhotoButton:hover {
+            background: linear-gradient(135deg, #ec407a, #d81b60);
+        }
+
+        #nextPhotoButton:disabled {
+            cursor: wait;
+            opacity: 0.75;
+        }
+
+        #nextPhotoButton[hidden] {
+            display: none;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border: 1px solid #f2c3d3;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.86);
+            font-size: 24px;
+            color: #ad1457;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #ec407a;
+            background: #ffffff;
+            transform: rotate(90deg);
+        }
+
+        .book-page-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 18px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(217, 79, 125, 0.2);
+            color: #bf6b88;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        .book-page-footer span:last-child {
+            color: #ec407a;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes storyPageIn {
+            from {
+                opacity: 0;
+                transform: perspective(1200px) translate3d(0, 20px, -35px) scale(0.975);
+            }
+            to {
+                opacity: 1;
+                transform: perspective(1200px) translate3d(0, 0, 0) scale(1);
+            }
+        }
+
+        @keyframes photoCardArrive {
+            from { opacity: 0; translate: 0 18px; }
+            to { opacity: 1; translate: 0 0; }
+        }
+
+        @keyframes pageTurnOut {
+            0% {
+                opacity: 1;
+                transform: rotateY(0) rotateX(0) translate3d(0, 0, 0) scale(1);
+                box-shadow: 10px 14px 0 -4px #f6d9e4, 14px 20px 0 -8px #fffafd, 0 24px 55px rgba(74, 21, 37, 0.34);
+            }
+            45% {
+                opacity: 1;
+                transform: rotateY(-38deg) rotateX(2deg) translate3d(-10px, 0, 18px) scale(0.99);
+                box-shadow: 24px 18px 22px rgba(74, 21, 37, 0.3);
+            }
+            100% {
+                opacity: 0;
+                transform: rotateY(-98deg) rotateX(3deg) translate3d(-45px, 5px, 28px) scale(0.94);
+                box-shadow: 34px 20px 30px rgba(74, 21, 37, 0.22);
+            }
+        }
+
+        @keyframes pageTurnIn {
+            0% {
+                opacity: 0;
+                transform: rotateY(76deg) rotateX(-2deg) translate3d(48px, 8px, -24px) scale(0.9);
+                box-shadow: -26px 18px 28px rgba(74, 21, 37, 0.22);
+            }
+            58% {
+                opacity: 1;
+                transform: rotateY(-7deg) rotateX(1deg) translate3d(-4px, -2px, 12px) scale(1.015);
+                box-shadow: 14px 16px 24px rgba(74, 21, 37, 0.2);
+            }
+            100% {
+                opacity: 1;
+                transform: rotateY(0) rotateX(0) translate3d(0, 0, 0) scale(1);
+                box-shadow: 10px 14px 0 -4px #f6d9e4, 14px 20px 0 -8px #fffafd, 0 24px 55px rgba(74, 21, 37, 0.34);
+            }
+        }
+
+        @keyframes pageCurlShade {
+            0% { opacity: 0; transform: scaleX(0); }
+            45% { opacity: 0.85; }
+            100% { opacity: 0; transform: scaleX(1); }
+        }
+
+        @keyframes photoReveal {
+            0% { opacity: 0; transform: translate3d(24px, 12px, 50px) scale(0.82); filter: blur(4px); }
+            65% { opacity: 1; transform: translate3d(-3px, -2px, 18px) scale(1.035); filter: blur(0); }
+            100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+        }
+
+        @keyframes photoParallaxOut {
+            0% { opacity: 1; transform: translate3d(0, 0, 20px) scale(1); filter: blur(0); }
+            100% { opacity: 0; transform: translate3d(-34px, 8px, 65px) scale(1.1); filter: blur(2px); }
+        }
+
+        @keyframes photoSlideZoom {
+            0% { opacity: 0; transform: translate3d(54px, 14px, -45px) scale(0.78); filter: blur(5px); }
+            62% { opacity: 1; transform: translate3d(-5px, -2px, 24px) scale(1.055); filter: blur(0); }
+            100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+        }
+
+        @keyframes pageContentOut {
+            to { opacity: 0; transform: translate3d(-18px, 0, 12px); }
+        }
+
+        @keyframes pageContentIn {
+            from { opacity: 0; transform: translate3d(22px, 8px, -10px); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+
+        @keyframes coverSwingOpen {
+            0% { transform: rotateY(0); box-shadow: 5px 12px 24px rgba(74, 21, 37, 0.3); }
+            42% { transform: rotateY(-58deg); box-shadow: 18px 15px 27px rgba(74, 21, 37, 0.27); }
+            100% { transform: rotateY(-158deg); box-shadow: 24px 12px 22px rgba(74, 21, 37, 0.14); }
+        }
+
+        @keyframes bookBodySettle {
+            0% { opacity: 0.75; transform: rotateY(-8deg) translate3d(-16px, 8px, -30px) scale(0.94); }
+            65% { opacity: 1; transform: rotateY(2deg) translate3d(4px, -2px, 12px) scale(1.015); }
+            100% { opacity: 1; transform: rotateY(0) rotateX(0) translate3d(0, 0, 0) scale(1); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .page.active,
+            .page.active .photo-card {
+                animation: none;
+                translate: none;
+            }
+
+            .modal-content,
+            .modal-content.page-turn-out,
+            .modal-content.page-turn-in,
+            .modal-content.book-opening,
+            .storybook-cover {
+                animation-duration: 0.01ms;
+                transition-duration: 0.01ms;
+            }
+
+            .modal-content.book-opening .book-cover-leaf,
+            .modal-content.page-turn-out .modal-photo,
+            .modal-content.page-turn-in .modal-photo,
+            .modal-content.page-turn-out > :not(.modal-photo):not(.close-modal),
+            .modal-content.page-turn-in > :not(.modal-photo):not(.close-modal) {
+                animation-duration: 0.01ms;
+            }
+        }
+
+        /* =========================
+            NO RESULTS
+        ========================= */
+
+        #noResults {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+            color: #880e4f;
+        }
+
+        #noResults h2 {
+            margin-bottom: 10px;
+        }
+
+        /* =========================
+            MEMORIES
+        ========================= */
+
+        #memories {
+            padding: 70px 20px;
+            background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+        }
+
+        .memories-container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        .memories-container h1 {
+            text-align: center;
+            color: #880e4f;
+            font-size: 38px;
+            margin-bottom: 40px;
+        }
+
+        .memory-card {
+            background: #ffffff;
+            padding: 30px;
+            margin-bottom: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(244, 143, 177, 0.25);
+            text-align: center;
+            border: 2px solid #f8bbd0;
+        }
+
+        .memory-card h2 {
+            color: #880e4f;
+            margin-bottom: 12px;
+        }
+
+        .memory-card p {
+            color: #4a1525;
+            line-height: 1.7;
+        }
+
+        .main-quote {
+            background: #f8bbd0;
+            padding: 40px 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 30px;
+            border: 2px solid #f48fb1;
+        }
+
+        .main-quote p {
+            font-size: 26px;
+            font-style: italic;
+            color: #880e4f;
+            font-weight: bold;
+        }
+
+        /* =========================
+            FOOTER
+        ========================= */
+
+        footer {
+            background: #f8bbd0;
+            text-align: center;
+            padding: 25px;
+            color: #880e4f;
+            border-top: 2px solid #f48fb1;
+            font-weight: bold;
+        }
+
+        /* =========================
+            MOBILE APP DESIGN
+        ========================= */
+
+        @media (max-width: 600px) {
+            body {
+                padding-bottom: 72px;
+            }
+
+            nav {
+                position: sticky;
+                top: 0;
+                padding: 15px 10px;
+                height: 62px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-bottom: 2px solid #f48fb1;
+                box-shadow: 0 3px 15px rgba(244, 143, 177, 0.2);
+            }
+
+            nav a {
+                display: none;
+            }
+
+            nav::before {
+                content: "🦔 Princess Diane 🌸";
+                color: #880e4f;
+                font-size: 19px;
+                font-weight: bold;
+            }
+
+            #home {
+                min-height: calc(100vh - 62px);
+                padding: 40px 20px;
+            }
+
+            .home-content {
+                width: 100%;
+            }
+
+            .storybook-cover {
+                padding: 34px 22px 30px;
+                border-left-width: 11px;
+            }
+
+            .storybook-cover h1 {
+                font-size: 36px;
+            }
+
+            .storybook-cover p {
+                font-size: 15px;
+            }
+
+            .storybook-cover .view-button {
+                width: 85%;
+                max-width: 300px;
+            }
+
+            .heart {
+                font-size: 38px;
+            }
+
+            .home-content h1 {
+                font-size: 35px;
+                line-height: 1.2;
+            }
+
+            .home-content p {
+                font-size: 16px;
+                line-height: 1.5;
+                margin-bottom: 25px;
+            }
+
+            .view-button {
+                width: 85%;
+                max-width: 300px;
+                padding: 15px;
+                font-size: 16px;
+            }
+
+            .storybook-cover .view-button {
+                width: 85%;
+            }
+
+            .modal {
+                padding: 12px;
+            }
+
+            .modal-content {
+                max-height: 92vh;
+                padding: 20px 18px 20px 36px;
+                border-radius: 7px 18px 18px 7px;
+            }
+
+            .modal-content::before {
+                left: 18px;
+            }
+
+            .modal-photo {
+                max-height: 30vh;
+            }
+
+            #about {
+                padding: 30px 15px;
+            }
+
+            .about {
+                padding: 30px 20px;
+                border-radius: 22px;
+            }
+
+            .about h1 {
+                font-size: 29px;
+                margin-bottom: 20px;
+            }
+
+            .about h2 {
+                font-size: 21px;
+            }
+
+            .about p {
+                font-size: 15px;
+                line-height: 1.7;
+            }
+
+            #album {
+                padding: 30px 12px;
+            }
+
+            .album h1 {
+                font-size: 27px;
+                margin-bottom: 20px;
+                line-height: 1.3;
+            }
+
+            .search-container {
+                margin-bottom: 30px;
+            }
+
+            #searchInput {
+                padding: 15px 48px 15px 18px;
+                font-size: 15px;
+                border-radius: 25px;
+            }
+
+            .search-icon {
+                right: 18px;
+            }
+
+            .search-result {
+                margin-top: -15px;
+                margin-bottom: 20px;
+            }
+
+            .photo-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .album {
+                padding: 20px 11px;
+                border-radius: 16px;
+                background:
+                    linear-gradient(90deg, #f7edf0 0, #fffdfb 3%, #fffdfa 49.2%, #eadce1 50%, #fffdfa 50.8%, #fff 97%, #f7edf0 100%);
+            }
+
+            .photo-card {
+                padding: 7px;
+                border-radius: 13px;
+                box-shadow: 0 3px 12px rgba(244, 143, 177, 0.25);
+            }
+
+            .photo-card:hover {
+                transform: none;
+            }
+
+            .photo-card:nth-child(odd),
+            .photo-card:nth-child(even) {
+                transform: none;
+            }
+
+            .photo-card:active {
+                transform: scale(0.97);
+            }
+
+            .photo-card img {
+                height: 210px;
+                border-radius: 9px;
+            }
+
+            .photo-card h3 {
+                font-size: 14px;
+                margin-top: 10px;
+            }
+
+            .photo-card p {
+                font-size: 11px;
+                line-height: 1.4;
+                margin-top: 5px;
+                margin-bottom: 5px;
+            }
+
+            #memories {
+                padding: 30px 15px;
+            }
+
+            .memories-container h1 {
+                font-size: 29px;
+                margin-bottom: 25px;
+            }
+
+            .memory-card {
+                padding: 23px 18px;
+                margin-bottom: 15px;
+                border-radius: 18px;
+            }
+
+            .memory-card h2 {
+                font-size: 20px;
+            }
+
+            .memory-card p {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            .main-quote {
+                padding: 30px 15px;
+            }
+
+            .main-quote p {
+                font-size: 21px;
+            }
+
+            footer {
+                display: none;
+            }
+
+            body::after {
+                content: "";
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 68px;
+                background: #f8bbd0;
+                box-shadow: 0 -3px 15px rgba(244, 143, 177, 0.3);
+                z-index: 98;
+                border-top: 2px solid #f48fb1;
+            }
+
+            .mobile-nav {
+                display: flex;
+            }
+        }
+
+        .mobile-nav {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .mobile-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 68px;
+                background: #f8bbd0;
+                z-index: 99;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                padding: 5px 8px;
+                border-top: 2px solid #f48fb1;
+            }
+
+            .mobile-nav button {
+                border: none;
+                background: transparent;
+                color: #880e4f;
+                font-size: 11px;
+                font-weight: bold;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 3px;
+                min-width: 60px;
+                height: 58px;
+                cursor: pointer;
+            }
+
+            .mobile-nav button span {
+                font-size: 23px;
+                line-height: 22px;
+            }
+
+            .mobile-nav button.active-nav {
+                color: #ec407a;
+            }
+
+            .mobile-nav button:active {
+                transform: scale(0.9);
+            }
+        }
+
+        @media (max-width: 380px) {
+            .home-content h1 {
+                font-size: 30px;
+            }
+
+            .photo-grid {
+                gap: 9px;
+            }
+
+            .photo-card img {
+                height: 180px;
+            }
+
+            .photo-card h3 {
+                font-size: 12px;
+            }
+
+            .photo-card p {
+                font-size: 10px;
+            }
+
+            .mobile-nav button {
+                min-width: 50px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a onclick="showPage('home')">Home</a>
+        <a onclick="showPage('about')">About</a>
+        <a onclick="showPage('album')">Album</a>
+        <a onclick="showPage('memories')">Memories</a>
+    </nav>
+
+    <section id="home" class="page active">
+        <div class="home-content">
+            <audio id="backgroundMusic" controls autoplay loop>
+                <source src="Arthur Nery - Binhi.mp3" type="audio/mpeg">
+            </audio>
+            <button id="startMusicButton" class="view-button" type="button" onclick="startMusic()" hidden>
+                Tap to start the song ♫
+            </button>
+            <div class="storybook-cover">
+                <div class="cover-kicker">A little book made for you</div>
+                <div class="capy-badge">🦔💖🌸</div>
+                <h1>Princess Diane</h1>
+                <p>A Cute Collection of Pink Memories & Capybara Vibes</p>
+                <div class="heart">✿</div>
+                <button class="view-button" type="button" onclick="openAlbum()">View Album</button>
+                <a class="storybook-link" href="photobook.html">Open the 3D Photobook 📖</a>
+                <a class="storybook-link" href="storybook.html">Open the 4-Photo Storybook ✨</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="page">
+        <div class="about">
+            <div class="about-heart">🦔🌸</div>
+            <h1>About Princess Diane</h1>
+            <p>Welcome to Princess Diane's cute pink photo album! This website is a special place filled with charming moments, sweet capybaras, and lovely memories worth keeping.</p>
+            <br>
+            <p>Every picture tells a story, and every smile shines as bright as a sunny day. This album was created to cherish those moments forever in soft pink style.</p>
+            <br>
+            <h2>Beautiful Inside & Out</h2>
+            <p>A cute pink collection created with love, featuring capybaras, happiness, and unforgettable highlights.</p>
+        </div>
+    </section>
+
+    <section id="album" class="page">
+        <div class="album">
+            <h1>Princess Diane's Beauty Album 🌸</h1>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for a photo..." onkeyup="searchPhotos()">
+                <span class="search-icon">⌕</span>
+            </div>
+
+            <div class="search-result" id="searchResult">
+                Showing all photos
+            </div>
+
+            <div class="photo-grid" id="photoGrid">
+
+                <!-- Beach Picture -->
+                <div class="photo-card" onclick="showMessage(this, &quot;Standing by the ocean with the breeze in your hair—you shine brighter than the sunshine on the water. Every beach day is instantly better with you around&quot;)">
+                    <img src="incheng1.jpg" alt="Princess Diane Beach">
+                    <h3>Beach Vibes 🌊</h3>
+                    <p>Soaking up the sun in style.</p>
+                </div>
+
+                <!-- Red Top Portrait -->
+                <div class="photo-card" onclick="showMessage(this, &quot;Every single time I look at this picture, I can't help but fall for your smile all over again. You have this effortless grace that just lights up the whole room&quot;)">
+                    <img src="incheng2.jpg" alt="Princess Diane Portrait">
+                    <h3>Glow Up ✨</h3>
+                    <p>A look worth remembering.</p>
+                </div>
+
+                <!-- Sunglasses Hiking -->
+                <div class="photo-card" onclick="showMessage(this, &quot;Rocking those cute sunglasses and ready for any trail! Your energy and love for adventure make every journey together so much fun&quot;)">
+                    <img src="incheng3.jpg" alt="Princess Diane Hiking Fun">
+                    <h3>Adventure Time 🎒</h3>
+                    <p>Fun hiking energy!</p>
+                </div>
+
+                <!-- Outdoor Selfie -->
+                <div class="photo-card" onclick="showMessage(this, &quot;Looks like such a perfect day under the blue skies. But if I'm being honest, your happy smile is what really makes this photo so special&quot;)">
+                    <img src="incheng4.jpg" alt="Princess Diane Outdoor">
+                    <h3>Sunny Trails ☀</h3>
+                    <p>A beautiful day outdoors.</p>
+                </div>
+
+                <!-- Sitting on Mountain -->
+                <div class="photo-card" onclick="showMessage(this, &quot;The mountain backdrop is breathtaking, but my eyes still go straight to you. You really have a way of catching my attention, hehe&quot;)">
+                    <img src="incheng5.jpg" alt="Princess Diane Mountain Peak">
+                    <h3>Peak View ⛰️</h3>
+                    <p>Relaxing at the summit.</p>
+                </div>
+
+                <!-- Peak 3 Sign -->
+                <div class="photo-card" onclick="showMessage(this, &quot;Conquered Peak 3! Seeing you make it to the top shows how impressive and capable you are. I'm really proud of you&quot;)">
+                    <img src="incheng6.jpg" alt="Princess Diane Peak 3">
+                    <h3>Peak 3 Conqueror 🏆</h3>
+                    <p>Standing tall at the peak.</p>
+                </div>
+
+                <!-- Mirror Reflection Close Up -->
+                <div class="photo-card" onclick="showMessage(this, &quot;Just a sweet little reminder of how lovely you are. I don't know if you notice, but I definitely have a soft spot for you and your kind heart&quot;)">
+                    <img src="incheng7.jpg" alt="Princess Diane Close Up">
+                    <h3>Soft & Cute 💕</h3>
+                    <p>Pretty details up close.</p>
+                </div>
+
+                <!-- Evening Look with Lanyard -->
+                <div class="photo-card" onclick="showMessage(this, &quot;All dressed up and glowing under the evening lights! You look absolutely stunning here... kind of hard not to stare, to be honest&quot;)">
+                    <img src="incheng8.jpg" alt="Princess Diane Evening Look">
+                    <h3>Evening Charm 🌙</h3>
+                    <p>Night lights & sweet smiles.</p>
+                </div>
+
+            </div>
+
+            <div id="noResults">
+                <h2>No photo found</h2>
+                <p>Try searching another keyword or caption.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MESSAGE POPUP MODAL -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <div class="book-cover-leaf" aria-hidden="true">
+                <div class="book-cover-front">
+                    <span class="cover-kicker">A little book made for you</span>
+                    <span class="cover-emblem">🦔💖🌸</span>
+                    <h2>Princess Diane</h2>
+                    <p>A keepsake of sweet smiles, lovely memories, and all the little things that make you special.</p>
+                </div>
+                <div class="book-cover-back">
+                    <p>Every page holds a little reminder of how wonderful you are. Turn the page and let the story begin ✿</p>
+                </div>
+            </div>
+            <span class="close-modal" onclick="closeMessage()">&times;</span>
+            <div class="heart">🦔🌸</div>
+            <div class="modal-title">A little story, made with love ✿</div>
+            <div id="modalPageNumber" aria-live="polite"></div>
+            <div class="book-progress" role="progressbar" aria-label="Album progress" aria-valuemin="1" aria-valuemax="8" aria-valuenow="1">
+                <span id="bookProgressFill"></span>
+            </div>
+            <img id="modalPhoto" class="modal-photo" alt="">
+            <p id="modalText"></p>
+            <div id="finalPageNote" hidden>
+                You made it through every page! I hope these little memories made you smile.
+                You deserve all the happiness in the world 💖🌸
+            </div>
+            <button id="nextPhotoButton" class="view-button" type="button" onclick="showNextPhoto()" hidden>
+                Next 💌 →
+            </button>
+            <div class="book-page-footer">
+                <span>Forever one of a kind</span>
+                <span aria-hidden="true">♥</span>
+            </div>
+        </div>
+    </div>
+
+    <section id="memories" class="page">
+        <div class="memories-container">
+            <h1>🌸 Cute Memories 🦔</h1>
+
+            <div class="memory-card">
+                <h2>🦔 Capybara Chill</h2>
+                <p>Living life relaxed, calm, and cozy just like a capybara relaxing in a warm pink spring.</p>
+            </div>
+
+            <div class="memory-card">
+                <h2>Sweet Moments</h2>
+                <p>Some moments may seem simple, but they become extra special with a touch of pink and joy.</p>
+            </div>
+
+            <div class="memory-card">
+                <h2>Beautiful Days</h2>
+                <p>Every smile, photo, and sweet capybara memory brings warmth and happiness.</p>
+            </div>
+
+            <div class="memory-card">
+                <h2>Forever Remembered</h2>
+                <p>Memories stay with us like sweet little keepsakes that always make us smile.</p>
+            </div>
+
+            <div class="main-quote">
+                <p>"Pretty, cute, and full of capybara chill!"</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Made with love & capybaras for Princess Diane 🦔💖</p>
+    </footer>
+
+    <div class="mobile-nav">
+        <button id="nav-home" class="active-nav" onclick="showPage('home')">
+            <span>⌂</span>Home
+        </button>
+        <button id="nav-about" onclick="showPage('about')">
+            <span>🌸</span>About
+        </button>
+        <button id="nav-album" onclick="showPage('album')">
+            <span>▦</span>Album
+        </button>
+        <button id="nav-memories" onclick="showPage('memories')">
+            <span>🦔</span>Memories
+        </button>
+    </div>
+
+    <script>
+        const backgroundMusic = document.getElementById("backgroundMusic");
+        const startMusicButton = document.getElementById("startMusicButton");
+
+        backgroundMusic.addEventListener("playing", function() {
+            startMusicButton.hidden = true;
+        });
+
+        backgroundMusic.addEventListener("error", function() {
+            startMusicButton.textContent = "Song could not load — check the MP3 file.";
+            startMusicButton.hidden = false;
+        });
+
+        function startMusic() {
+            backgroundMusic.play().catch(function() {
+                startMusicButton.textContent = "Could not play the song. Check the MP3 file.";
+                startMusicButton.hidden = false;
+            });
+        }
+
+        backgroundMusic.play().catch(function() {
+            startMusicButton.textContent = "Autoplay was blocked. Tap to start the song ♫";
+            startMusicButton.hidden = false;
+        });
+
+        function showPage(pageName) {
+            const pages = document.querySelectorAll(".page");
+            pages.forEach(function(page) {
+                page.classList.remove("active");
+            });
+
+            const selectedPage = document.getElementById(pageName);
+            selectedPage.classList.add("active");
+
+            const navButtons = document.querySelectorAll(".mobile-nav button");
+            navButtons.forEach(function(button) {
+                button.classList.remove("active-nav");
+            });
+
+            const activeButton = document.getElementById("nav-" + pageName);
+            if (activeButton) {
+                activeButton.classList.add("active-nav");
+            }
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+        let currentPhotoIndex = -1;
+        let isPageTurning = false;
+        let pageTurnTimer;
+        let bookOpeningTimer;
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const pageTurnOutDuration = prefersReducedMotion ? 1 : 520;
+        const pageTurnInDuration = prefersReducedMotion ? 1 : 720;
+        const bookOpeningDuration = prefersReducedMotion ? 1 : 900;
+        const bookPage = document.querySelector(".modal-content");
+
+        bookPage.addEventListener("pointermove", function(event) {
+            if (prefersReducedMotion || isPageTurning || bookPage.classList.contains("book-opening")) {
+                return;
+            }
+
+            const bounds = bookPage.getBoundingClientRect();
+            const horizontalPosition = (event.clientX - bounds.left) / bounds.width * 2 - 1;
+            const verticalPosition = (event.clientY - bounds.top) / bounds.height * 2 - 1;
+
+            bookPage.style.setProperty("--book-tilt-x", (horizontalPosition * 2.5).toFixed(2) + "deg");
+            bookPage.style.setProperty("--book-tilt-y", (verticalPosition * -2.5).toFixed(2) + "deg");
+            bookPage.style.setProperty("--photo-shift-x", (horizontalPosition * 7).toFixed(1) + "px");
+            bookPage.style.setProperty("--photo-shift-y", (verticalPosition * 5).toFixed(1) + "px");
+            bookPage.style.setProperty("--photo-scale", "1.025");
+        });
+
+        bookPage.addEventListener("pointerleave", function() {
+            bookPage.style.setProperty("--book-tilt-x", "0deg");
+            bookPage.style.setProperty("--book-tilt-y", "0deg");
+            bookPage.style.setProperty("--photo-shift-x", "0px");
+            bookPage.style.setProperty("--photo-shift-y", "0px");
+            bookPage.style.setProperty("--photo-scale", "1");
+        });
+
+        function openAlbum() {
+            showPage("album");
+            window.clearTimeout(pageTurnTimer);
+            window.clearTimeout(bookOpeningTimer);
+            bookPage.classList.remove("page-turn-out", "page-turn-in", "book-opening", "book-opened");
+            bookPage.style.setProperty("--book-tilt-x", "0deg");
+            bookPage.style.setProperty("--book-tilt-y", "0deg");
+            bookPage.style.setProperty("--photo-shift-x", "0px");
+            bookPage.style.setProperty("--photo-shift-y", "0px");
+            bookPage.style.setProperty("--photo-scale", "1");
+            bookPage.classList.add("book-opening");
+            isPageTurning = false;
+
+            const firstPhoto = document.querySelector(".photo-card");
+            if (firstPhoto) {
+                firstPhoto.click();
+            }
+
+            bookOpeningTimer = window.setTimeout(function() {
+                bookPage.classList.remove("book-opening");
+                bookPage.classList.add("book-opened");
+            }, bookOpeningDuration);
+        }
+
+        function showMessage(photoCard, text) {
+            const photoCards = Array.from(document.querySelectorAll(".photo-card"));
+            const modal = document.getElementById("messageModal");
+            const modalPhoto = document.getElementById("modalPhoto");
+            const modalText = document.getElementById("modalText");
+            const modalPageNumber = document.getElementById("modalPageNumber");
+            const bookProgress = document.querySelector(".book-progress");
+            const bookProgressFill = document.getElementById("bookProgressFill");
+            const finalPageNote = document.getElementById("finalPageNote");
+            const nextPhotoButton = document.getElementById("nextPhotoButton");
+            const photo = photoCard.querySelector("img");
+
+            currentPhotoIndex = photoCards.indexOf(photoCard);
+            modalPhoto.src = photo.src;
+            modalPhoto.alt = photo.alt;
+            modalText.textContent = text;
+            modalPageNumber.textContent = "Page " + (currentPhotoIndex + 1) + " of " + photoCards.length + " • made with love";
+            bookProgress.setAttribute("aria-valuemax", photoCards.length);
+            bookProgress.setAttribute("aria-valuenow", currentPhotoIndex + 1);
+            bookProgressFill.style.width = ((currentPhotoIndex + 1) / photoCards.length * 100) + "%";
+            finalPageNote.hidden = currentPhotoIndex < photoCards.length - 1;
+            nextPhotoButton.hidden = currentPhotoIndex >= photoCards.length - 1;
+            document.body.style.overflow = "hidden";
+            modal.style.display = "flex";
+        }
+
+        function showNextPhoto() {
+            const photoCards = document.querySelectorAll(".photo-card");
+            if (!isPageTurning && photoCards[currentPhotoIndex + 1]) {
+                isPageTurning = true;
+                document.getElementById("nextPhotoButton").disabled = true;
+                bookPage.classList.remove("page-turn-in");
+                bookPage.style.setProperty("--book-tilt-x", "0deg");
+                bookPage.style.setProperty("--book-tilt-y", "0deg");
+                bookPage.style.setProperty("--photo-shift-x", "0px");
+                bookPage.style.setProperty("--photo-shift-y", "0px");
+                bookPage.style.setProperty("--photo-scale", "1");
+                bookPage.classList.add("page-turn-out");
+                pageTurnTimer = window.setTimeout(function() {
+                    bookPage.classList.remove("page-turn-out");
+                    const nextPhoto = photoCards[currentPhotoIndex + 1];
+
+                    if (nextPhoto) {
+                        nextPhoto.click();
+                        bookPage.classList.add("page-turn-in");
+                        pageTurnTimer = window.setTimeout(function() {
+                            bookPage.classList.remove("page-turn-in");
+                            document.getElementById("nextPhotoButton").disabled = false;
+                            isPageTurning = false;
+                        }, pageTurnInDuration);
+                    } else {
+                        document.getElementById("nextPhotoButton").disabled = false;
+                        isPageTurning = false;
+                    }
+                }, pageTurnOutDuration);
+            }
+        }
+
+        function closeMessage() {
+            const modal = document.getElementById("messageModal");
+            window.clearTimeout(pageTurnTimer);
+            window.clearTimeout(bookOpeningTimer);
+            bookPage.classList.remove("page-turn-out", "page-turn-in", "book-opening", "book-opened");
+            bookPage.style.setProperty("--book-tilt-x", "0deg");
+            bookPage.style.setProperty("--book-tilt-y", "0deg");
+            bookPage.style.setProperty("--photo-shift-x", "0px");
+            bookPage.style.setProperty("--photo-shift-y", "0px");
+            bookPage.style.setProperty("--photo-scale", "1");
+            isPageTurning = false;
+            document.getElementById("nextPhotoButton").disabled = false;
+            modal.style.display = "none";
+            document.body.style.overflow = "";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("messageModal");
+            if (event.target === modal) {
+                closeMessage();
+            }
+        }
+
+        function searchPhotos() {
+            const input = document.getElementById("searchInput");
+            const searchText = input.value.toLowerCase().trim();
+            const cards = document.querySelectorAll(".photo-card");
+            let foundPhotos = 0;
+
+            cards.forEach(function(card) {
+                const title = card.querySelector("h3").textContent.toLowerCase();
+                const caption = card.querySelector("p").textContent.toLowerCase();
+                const image = card.querySelector("img").alt.toLowerCase();
+
+                if (title.includes(searchText) || caption.includes(searchText) || image.includes(searchText)) {
+                    card.style.display = "block";
+                    foundPhotos++;
+                } else {
+                    card.style.display = "none";
+                }
+            });
+
+            const result = document.getElementById("searchResult");
+            const noResults = document.getElementById("noResults");
+
+            if (searchText === "") {
+                result.textContent = "Showing all photos";
+            } else {
+                result.textContent = foundPhotos + " photo(s) found";
+            }
+
+            if (foundPhotos === 0) {
+                noResults.style.display = "block";
+            } else {
+                noResults.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
